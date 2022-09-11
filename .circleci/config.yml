@@ -161,11 +161,11 @@ jobs:
             apk add --update ansible
             apk update && apk add openssh
             pip install awscli
-            ansible --version
       - run:
           name: Configure server
           environment:
             ANSIBLE_HOST_KEY_CHECKING: false
+            ansible_host_key_checking: false
            command: |
              cd .circleci/ansible/
              ansible-playbook -i inventory.txt configure-server.yml
