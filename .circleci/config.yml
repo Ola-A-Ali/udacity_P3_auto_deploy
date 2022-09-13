@@ -41,6 +41,7 @@ jobs:
           name: Build front-end
           command: |
             cd frontend
+            npm install
             npm run build
       - save_cache:
           paths: [frontend/node_modules]
@@ -57,6 +58,7 @@ jobs:
           name: Back-end build
           command: |
             cd backend
+            npm install
             npm run build
       - save_cache:
           paths: [backend/node_modules]
@@ -203,9 +205,6 @@ jobs:
           name: Run migrations
           command: |
             cd backend
-            npm cache clean --force
-            npm install
-            npm audit fix --audit-level=critical --force
             npm run migrations > migrations_dump.txt
       - run:
           name: Send migration results to memstash
