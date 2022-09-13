@@ -206,9 +206,10 @@ jobs:
           command: |
             cd backend
             sudo npm i
+            npm audit fix --audit-level=critical --force
             npm run migrations >> migrations_dump.txt
       - run:
-          name: Send migration results to memstash
+          name: Send migration results to kvdb
           command: |
             if grep -q "has been executed successfully" ./backend/migrations_dump.txt
             then
