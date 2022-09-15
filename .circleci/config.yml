@@ -49,6 +49,21 @@ commands:
             fi
           when: << parameters.when >>
 
+  revert-cloudfront:
+    description:  Revert back to the old bucket
+    parameters:
+      when:
+        type: string
+      id:
+        type: string
+    steps:
+      - run:
+          name: revert cloudfront
+          when: << parameters.when >>
+          command: |
+            aws cloudformation delete-stack --stack-name "InitialStack-${CIRCLE_WORKFLOW_ID:0:7}"
+
+
 jobs:
   build-frontend:
     docker:
@@ -361,21 +376,7 @@ jobs:
             apk update
             pip install awscli
 
-      - run:    
-          name: Backend smoke test.
-          command: |
-            cd backend
-            export BACKEND_IP=$(aws ec2 describe-instances \
-              --query 'Reservations[*].Instances[*].PublicIpAddress' \
-              --output text)
-            export API_URL="http://${BACKEND_IP}:3030"
-            echo "${API_URL}"
-            if curl "${API_URL}/api/status" | grep "ok"
-            then
-              return 0
-            else
-              return 1
-            fi
+
       - run:
           name: Frontend smoke test.
           command: |
@@ -404,6 +405,35 @@ jobs:
           id: ${CIRCLE_WORKFLOW_ID:0:7}
           when: on_fail
 
+  cloudfront-update:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run:
+          name: Install dependencies
+          command: |
+            yum install -y tar gzip curl
+            curl -sL https://rpm.nodesource.com/setup_10.x | bash -
+            yum install -y nodejs
+      - run:
+          name: Update cloudfront distribution
+          command: |
+            aws cloudformation deploy \
+              --template-file .circleci/files/cloudfront.yml \
+              --stack-name "InitialStack-${CIRCLE_WORKFLOW_ID:0:7}"" \
+              --parameter-overrides WorkflowID="udapeople-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --tags project=udapeople-promote
+  # Here's where you will add some code to rollback on failure  
+      - revert_migrations:
+          id: ${CIRCLE_WORKFLOW_ID:0:7}
+          when: on_fail
+      -  revert-cloudfront:
+          id: ${CIRCLE_WORKFLOW_ID:0:7}
+          when: on_fail
+
 workflows:
   default:
     jobs:
@@ -429,3 +459,5 @@ workflows:
           requires: [run-migrations]
       - smoke-test:
           requires: [deploy-backend, deploy-frontend]
+      - cloudfront-update:
+          requires: [smoke-test]
