@@ -376,7 +376,22 @@ jobs:
             apk update
             pip install awscli
 
-
+      - run:    
+          name: Backend smoke test.
+          command: |
+            cd backend
+            export BACKEND_IP=$(aws ec2 describe-instances \
+              --query 'Reservations[*].Instances[*].PublicIpAddress' \
+              --output text)
+            export API_URL="http://${BACKEND_IP}:3030"
+            echo "${API_URL}"
+            if curl "${API_URL}/api/status" | grep "ok"
+            then
+              return 0
+            else
+              return 1
+            fi
+    
       - run:
           name: Frontend smoke test.
           command: |
@@ -414,8 +429,8 @@ jobs:
           at: .
       - run:
           name: Install dependencies
-          command: |
-            yum install -y tar gzip
+          command: yum install -y tar gzip
+          
       - run:
           name: Update cloudfront distribution
           command: |
