@@ -415,9 +415,7 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            yum install -y tar gzip curl
-            curl -sL https://rpm.nodesource.com/setup_10.x | bash -
-            yum install -y nodejs
+            yum install -y tar gzip
       - run:
           name: Update cloudfront distribution
           command: |
