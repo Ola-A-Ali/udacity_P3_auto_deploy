@@ -321,7 +321,7 @@ jobs:
           keys:
             - backend-build
       - run:
-          name: Install dependencies
+          name: "Install Dependencies"
           command: |
             sudo apt-get -y update
             sudo apt-get -y install python3
