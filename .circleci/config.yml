@@ -322,7 +322,7 @@ jobs:
 
   deploy-backend:
     docker:
-      - image: circleci/node:13.8.0
+      - image: python:3.9.0-alpine
     steps:
       - checkout
       - add_ssh_keys:
@@ -450,12 +450,63 @@ jobs:
               --parameter-overrides WorkflowID="udapeople-${CIRCLE_WORKFLOW_ID:0:7}" \
               --tags project=udapeople-promote
   # Here's where you will add some code to rollback on failure  
+      - destroy_environment:
+          id: ${CIRCLE_WORKFLOW_ID:0:7}
+          when: on_fail
       - revert_migrations:
           id: ${CIRCLE_WORKFLOW_ID:0:7}
           when: on_fail
       -  revert-cloudfront:
           id: ${CIRCLE_WORKFLOW_ID:0:7}
           when: on_fail
+
+
+  cleanup:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run:
+          name: Get old stack workflow id
+          command: |
+            export BACKEND_IP=$(aws ec2 describe-instances \
+              --query 'Reservations[*].Instances[*].PublicIpAddress' \
+              --output text)
+            export API_URL="http://${BACKEND_IP}:3030"
+            echo "${API_URL}/api/status"
+            export OldWorkflowID=${API_URL}/api/status
+            echo "${OldWorkFlowID}"
+            CurrentWorkflowID=${CIRCLE_WORKFLOW_ID:0:7}
+            echo ${CurrentWorkflowID}        
+
+      - run:
+          name: Remove old stacks and files
+          command: |
+            if [ "${OldWorkFlowID}" != " " ] && [ "${OldWorkFlowID}" != "${CurrentWorkflowID}" ]
+            then
+              echo ${OldWorkFlowID}
+              echo ${CurrentWorkflowID}
+              echo "delete S3 bucket"
+              aws s3 rb s3://${OldWorkFlowID} --force 
+              echo "delete stacks"
+              aws cloudformation delete-stack --stack-name backend-stack-${OldWorkFlowID}
+              aws cloudformation delete-stack --stack-name frontend-stack-${OldWorkFlowID}
+              aws cloudformation delete-stack --stack-name InitialStack-${OldWorkFlowID}              
+            
+            else
+              echo "$OldWorkflowID==$CurrentWorkflowID => nothing needs to be done..."
+            fi
+
+      - destroy_environment:
+          id: ${CIRCLE_WORKFLOW_ID:0:7}
+          when: on_fail
+       - revert_migrations:
+          id: ${CIRCLE_WORKFLOW_ID:0:7}
+          when: on_fail
+      -  revert-cloudfront:
+          id: ${CIRCLE_WORKFLOW_ID:0:7}
+          when: on_fail
+
 
 workflows:
   default:
@@ -484,3 +535,5 @@ workflows:
           requires: [deploy-backend, deploy-frontend]
       - cloudfront-update:
           requires: [smoke-test]
+      - cleanup:
+          requires: [cloudfront-update]
