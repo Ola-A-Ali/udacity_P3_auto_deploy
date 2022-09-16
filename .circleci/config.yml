@@ -347,10 +347,16 @@ jobs:
             npm i
             npm run build
             cd ..
-            tar -C backend -czvf artifact.tar.gz .
+            pwd
+            ls -lah 
+            tar -czvf backend.tar.gz backend
+            ls -lah
+            pwd
             cd .circleci/ansible
             echo "Contents  of the inventory.txt file is -------"
             cat inventory.txt
+            pwd 
+            ls -lah
             ansible-playbook -i inventory.txt deploy-backend.yml
 
       # Here's where you will add some code to rollback on failure  
