@@ -13,12 +13,6 @@
       dest: /home/ubuntu
       copy: no
 
-  - name: "Install Dependencies"
-    shell: |
-      cd /home/ubuntu/backend
-      npm install
-      npm run build
-
   - name: "run server"
     shell: |
       cd /home/ubuntu/backend
