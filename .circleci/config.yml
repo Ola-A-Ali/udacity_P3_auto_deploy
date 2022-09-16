@@ -395,7 +395,7 @@ jobs:
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --output text)
             URL="http://${BACKEND_IP}:3030/api/status"
-            if curl -s --head ${URL} 
+            if curl -s --head ${URL} | grep "ok"
             then
               return 0
             else
