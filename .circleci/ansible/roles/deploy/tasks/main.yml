@@ -4,12 +4,12 @@
 
   - name: "Copy backend Files"
     copy:
-      src: .backend.tar.gz
+      src: backend.tar.gz
       dest: /home/ubuntu
 
   - name: "unarchive the dist directory"
     unarchive:
-      src: .backend.tar.gz
+      src: backend.tar.gz
       dest: /home/ubuntu
       copy: no
 
@@ -21,6 +21,6 @@
 
   - name: "run server"
     shell: |
-      cd .backend
+      cd backend
       pm2 start npm --name backend -- start
       pm2 ls
