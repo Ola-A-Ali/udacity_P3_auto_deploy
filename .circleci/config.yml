@@ -350,13 +350,9 @@ jobs:
             pwd
             ls -lah 
             tar -czvf backend.tar.gz backend
-            ls -lah
-            pwd
             cd .circleci/ansible
             echo "Contents  of the inventory.txt file is -------"
             cat inventory.txt
-            pwd 
-            ls -lah
             ansible-playbook -i inventory.txt deploy-backend.yml
 
       # Here's where you will add some code to rollback on failure  
@@ -398,8 +394,7 @@ jobs:
           command: |
             cd backend
             export BACKEND_IP=$(aws ec2 describe-instances \
-              --query 'Reservations[*].Instances[*].PublicIpAddress' \
-              --output text)
+              --query 'Reservations[*].Instances[*].PublicIpAddress')
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}/api/status"
             if curl "${API_URL}/api/status" | grep "ok"
