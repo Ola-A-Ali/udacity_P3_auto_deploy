@@ -375,6 +375,32 @@ jobs:
             apk --no-cache add curl
             apk update
             pip install awscli
+    
+      - run:
+          name: test backend smoke test
+          command: |
+            URL="http://google.com/"
+            if curl -s --head ${URL} 
+            then
+              return 0
+            else
+              return 1
+            fi
+
+      - run:    
+          name: Backend smoke test.
+          command: |
+            cd backend
+            export BACKEND_IP=$(aws ec2 describe-instances \
+              --query 'Reservations[*].Instances[*].PublicIpAddress' \
+              --output text)
+            URL="http://${BACKEND_IP}:3030/api/status"
+            if curl -s --head ${URL} 
+            then
+              return 0
+            else
+              return 1
+            fi
 
       - run:
           name: Frontend smoke test.
