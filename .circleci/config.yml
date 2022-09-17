@@ -379,16 +379,16 @@ jobs:
             apk update
             pip install awscli
     
-      - run:
-          name: test backend smoke test
-          command: |
-            URL="http://google.com/"
-            if curl -s --head ${URL} 
-            then
-              return 0
-            else
-              return 1
-            fi
+      # - run:
+      #     name: test backend smoke test
+      #     command: |
+      #       URL="http://google.com/"
+      #       if curl -s --head ${URL} 
+      #       then
+      #         return 0
+      #       else
+      #         return 1
+      #       fi
 
       - run:    
           name: Backend smoke test.
