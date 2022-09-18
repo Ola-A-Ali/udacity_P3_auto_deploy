@@ -266,7 +266,7 @@ jobs:
               echo "DB migration failed"
               curl --insecure https://kvdb.io/7ZY96jDPZNm7b52YU3GdLy/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '0'
             fi
-            echo "WorkflowID=${CIRCLE_WORKFLOW_ID:0:7}"
+            echo "WorkflowID=udapeople-${CIRCLE_WORKFLOW_ID:0:7}"
      # Here's where you will add some code to rollback on failure      
       - destroy_environment:
           id: ${CIRCLE_WORKFLOW_ID:0:7}
@@ -390,21 +390,21 @@ jobs:
               return 1
             fi
 
-      # - run:    
-      #     name: Backend smoke test.
-      #     command: |
-      #       cd backend
-      #       export BACKEND_IP=$(aws ec2 describe-instances \
-      #         --query 'Reservations[*].Instances[*].PublicIpAddress' \
-      #         --output text)
-      #       export API_URL="http://${BACKEND_IP}:3030"
-      #       echo "${API_URL}/api/status"
-      #       if curl "${API_URL}/api/status" | grep "ok"
-      #       then
-      #         return 0
-      #       else
-      #         return 1
-      #       fi
+      - run:    
+          name: Backend smoke test.
+          command: |
+            cd backend
+            export BACKEND_IP=$(aws ec2 describe-instances \
+              --query 'Reservations[*].Instances[*].PublicIpAddress' \
+              --output text)
+            export API_URL="http://${BACKEND_IP}:3030"
+            echo "${API_URL}/api/status"
+            if curl "${API_URL}/api/status" | grep "ok"
+            then
+              return 0
+            else
+              return 1
+            fi
 
       - run:
           name: Frontend smoke test.
