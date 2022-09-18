@@ -7,11 +7,11 @@
       src: /root/project/backend.tar.gz
       dest: /home/ubuntu
 
-  # - name: "unarchive the dist directory"
-  #   unarchive:
-  #     src: /home/ubuntu/backend.tar.gz
-  #     dest: /home/ubuntu
-  #     copy: no
+  - name: "unarchive the dist directory"
+    unarchive:
+      src: /home/ubuntu/backend.tar.gz
+      dest: /home/ubuntu
+      copy: no
 
   - name: "Install Dependencies"
     shell: |
