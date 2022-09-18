@@ -502,6 +502,7 @@ jobs:
             #   echo "$OldWorkflowID==$CurrentWorkflowID => nothing needs to be done..."
             # fi
 
+
             if [[ "${CIRCLE_WORKFLOW_ID:0:7}" =~ "${OldWorkflowID}" ]]
             then
               echo ${OldWorkFlowID}
